@@ -50,8 +50,11 @@ textarea:focus{border-color:var(--pink)}
 .detect-result{
   display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;
   background:linear-gradient(90deg,rgba(79,214,255,.15),rgba(164,91,255,.15));
-  padding:10px 12px;border-radius:10px;
+  padding:10px 12px;border-radius:10px;flex-wrap:wrap;
 }
+.detect-tag{background:rgba(255,255,255,.12);padding:3px 10px;border-radius:999px;font-size:12.5px;white-space:nowrap}
+.sh-tag{background:rgba(255,94,138,.22);border:1px solid rgba(255,94,138,.5)}
+.xy-tag{background:rgba(255,196,0,.18);border:1px solid rgba(255,196,0,.5)}
 
 /* 人设 */
 .persona-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}

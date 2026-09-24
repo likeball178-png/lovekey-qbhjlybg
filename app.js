@@ -9,8 +9,11 @@ const state = { persona: 'all', view: 'gen', libScene: 'all', libPersona: 'all' 
 let aiReady = true;
 
 /* ---------- 合并扩充话术库（replies2/replies3 在页面中先行加载） ---------- */
-if (typeof REPLIES2 !== 'undefined') REPLIES = REPLIES.concat(REPLIES2);
-if (typeof REPLIES3 !== 'undefined') REPLIES = REPLIES.concat(REPLIES3);
+if (typeof REPLIES2 !== 'undefined') REPLIES.push(...REPLIES2);
+if (typeof REPLIES3 !== 'undefined') REPLIES.push(...REPLIES3);
+/* ---------- 合并上海话场景与回复（replies_sh.js） ---------- */
+if (typeof SH_SCENARIOS !== 'undefined') SCENARIOS.push(...SH_SCENARIOS);
+if (typeof SH_REPLIES !== 'undefined') REPLIES.push(...SH_REPLIES);
 
 /* ---------- 本地存储工具 ---------- */
 const store = {
@@ -49,14 +52,37 @@ function detectScenarios(text) {
   return scored;
 }
 
+/* ---------- 方言识别（上海话） ---------- */
+function detectDialect(text) {
+  if (!text || typeof SH_WORDS === 'undefined') return null;
+  const t = text;
+  const s3 = SH_WORDS.s3.filter(w => t.includes(w));
+  const s2 = SH_WORDS.s2.filter(w => t.includes(w));
+  if (s3.length >= 1) return { type: 'sh', label: '🗣️ 上海话', hits: [...s3, ...s2].slice(0, 5) };
+  if (s2.length >= 2) return { type: 'sh', label: '🗣️ 上海话', hits: s2.slice(0, 5) };
+  return null;
+}
+
+/* ---------- 谐音梗识别（接梗专用，不走 AI） ---------- */
+function detectXieyin(text) {
+  if (!text || typeof XIEYIN_ITEMS === 'undefined') return null;
+  const t = text.toLowerCase();
+  for (const it of XIEYIN_ITEMS) {
+    if (it.w.some(w => t.includes(w.toLowerCase()))) return it;
+  }
+  return null;
+}
+
 /* ---------- 回复生成（带近期去重：连续使用时不会刷到刚用过的） ---------- */
 function shuffle(a) { const x = [...a]; for (let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];} return x; }
 
 let recentKeys = store.get('lk_recent', []);
 
-function generate(msg, persona, scenarioId) {
+function generate(msg, persona, scenarioId, poolOverride) {
   let pool;
-  if (scenarioId) {
+  if (poolOverride) {
+    pool = poolOverride;
+  } else if (scenarioId) {
     pool = REPLIES.filter(r => r.s === scenarioId);
   } else {
     pool = REPLIES;
@@ -72,10 +98,15 @@ function generate(msg, persona, scenarioId) {
       if (f.length) pool = f;
     }
   }
-  // 优先排除最近用过的；候选不足时放宽（保证总有 3 条）
+  // 优先排除最近用过的；新鲜的不够 3 条时，先取新鲜的、再用池里剩下的补齐（保证总有 3 条且尽量不重复）
   let fresh = shuffle(pool).filter(r => !recentKeys.includes(r.t));
-  if (fresh.length < 3) fresh = shuffle(pool);
-  const picked = fresh.slice(0, 3);
+  let picked;
+  if (fresh.length >= 3) {
+    picked = fresh.slice(0, 3);
+  } else {
+    const rest = shuffle(pool).filter(r => !fresh.includes(r));
+    picked = [...fresh, ...rest].slice(0, 3);
+  }
   picked.forEach(r => {
     recentKeys.unshift(r.t);
     if (recentKeys.length > 80) recentKeys.pop();
@@ -157,21 +188,38 @@ async function run() {
   if (!msg) { toast('先粘一句话进来吧'); return; }
 
   const scen = detectScenarios(msg);
+  const dlg = detectDialect(msg);
+  const xy = detectXieyin(msg);
   const detectEl = $('#detectCard'), detectRes = $('#detectResult');
+
+  // 识别标签：谐音梗 > 方言 > 场景，可叠加
+  const tags = [];
+  if (xy) tags.push(`<span class="detect-tag xy-tag">${xy.tag}</span>`);
+  if (dlg) tags.push(`<span class="detect-tag sh-tag">${dlg.label}</span>`);
   if (scen.length) {
-    detectRes.innerHTML = scen.slice(0, 3).map(s => {
+    scen.slice(0, 3).forEach(s => {
       const info = SCENARIOS.find(x => x.id === s.id);
-      return `<span class="detect-tag">${info ? info.emoji + ' ' + info.name : s.id}</span>`;
-    }).join('');
+      tags.push(`<span class="detect-tag">${info ? info.emoji + ' ' + info.name : s.id}</span>`);
+    });
+  }
+  if (tags.length) {
+    detectRes.innerHTML = tags.join('');
     detectEl.hidden = false;
   } else {
     detectEl.hidden = true;
   }
   const scenarioId = scen.length ? scen[0].id : null;
-  const scenarioLabel = scen.length ? (SCENARIOS.find(x => x.id === scen[0].id) || {}).name : '';
+  const scenarioLabel = tags.map(t => t.replace(/<[^>]+>/g, '')).join(' · ');
 
   let items = [];
-  if (aiReady) {
+  if (xy) {
+    // 谐音梗：直接接梗（AI 不认识最新梗，模板接得更准）
+    items = shuffle(xy.r).slice(0, 3).map(r => ({ t: r.t, p: r.p }));
+  } else if (dlg) {
+    // 上海话：优先上海话专属回复池；若场景命中 sh_*，则出对应上海话场景的回复
+    const shScen = scen.find(s => s.id.startsWith('sh_'));
+    items = shScen ? generate(msg, state.persona, shScen.id) : generate(msg, state.persona, null, SH_REPLIES);
+  } else if (aiReady) {
     const aiBtn = $('#toggleAiBtn');
     const old = aiBtn.textContent;
     aiBtn.textContent = '🧠 AI 正在思考…';
@@ -185,7 +233,7 @@ async function run() {
     items = generate(msg, state.persona, scenarioId);
   }
 
-  lastGen = { msg, persona: state.persona };
+  lastGen = { msg, persona: state.persona, dlg: !!dlg, xy: !!xy };
   renderResults(items, scenarioLabel);
   pushHist(msg, items.map(i => i.t));
 }
@@ -288,7 +336,9 @@ function esc(s) {
 function renderLibChips() {
   const scEl = $('#libSceneChips');
   scEl.innerHTML = `<button class="chip ${state.libScene==='all'?'on':''}" data-sc="all">全部场景</button>` +
-    SCENARIOS.map(s => `<button class="chip ${state.libScene===s.id?'on':''}" data-sc="${s.id}">${s.emoji} ${s.name}</button>`).join('');
+    `<button class="chip ${state.libScene==='__sh__'?'on':''}" data-sc="__sh__">🗣️ 上海话</button>` +
+    `<button class="chip ${state.libScene==='__xy__'?'on':''}" data-sc="__xy__">🎯 谐音梗</button>` +
+    SCENARIOS.filter(s => !s.id.startsWith('sh_')).map(s => `<button class="chip ${state.libScene===s.id?'on':''}" data-sc="${s.id}">${s.emoji} ${s.name}</button>`).join('');
   scEl.querySelectorAll('.chip').forEach(el => {
     el.addEventListener('click', () => { state.libScene = el.dataset.sc; renderLibChips(); renderLibraryList(); });
   });
@@ -303,9 +353,10 @@ function replyItemHTML(r) {
   const scn = SCENARIOS.find(s => s.id === r.s);
   const per = PERSONAS.find(p => p.id === r.p);
   const star = isFav(r.t) ? '★' : '☆';
+  const scnTxt = scn ? scn.emoji + ' ' + scn.name : (r.s === '__xy__' ? '🎯 谐音梗' : '');
   return `<div class="reply-item lib-item">
     <div class="reply-text">${esc(r.t)}</div>
-    <div class="reply-meta">${scn ? scn.emoji + ' ' + scn.name : ''}${per ? ' · ' + per.emoji + ' ' + per.name : ''}</div>
+    <div class="reply-meta">${scnTxt}${per ? ' · ' + per.emoji + ' ' + per.name : ''}</div>
     <div class="lib-actions">
       <button class="copy-btn">复制</button>
       <button class="fav-btn ${isFav(r.t) ? 'on' : ''}" data-t="${esc(r.t)}">${star}</button>
@@ -315,7 +366,15 @@ function replyItemHTML(r) {
 function renderLibraryList() {
   const kw = $('#libSearch').value.trim().toLowerCase();
   let list = REPLIES;
-  if (state.libScene !== 'all') list = list.filter(r => r.s === state.libScene);
+  if (state.libScene === '__sh__') {
+    list = list.filter(r => r.s && r.s.startsWith('sh_'));
+  } else if (state.libScene === '__xy__') {
+    const rows = [];
+    XIEYIN_ITEMS.forEach(it => it.r.forEach(r => rows.push({ t: r.t, s: '__xy__', p: r.p })));
+    list = rows;
+  } else if (state.libScene !== 'all') {
+    list = list.filter(r => r.s === state.libScene);
+  }
   if (state.libPersona !== 'all') list = list.filter(r => r.p === state.libPersona);
   if (kw) list = list.filter(r => r.t.toLowerCase().includes(kw));
   $('#libCount').textContent = list.length;
@@ -401,9 +460,21 @@ function bindEvents() {
   $('#genBtn').addEventListener('click', run);
   $('#againBtn').addEventListener('click', () => {
     if (!lastGen) return;
-    const scen = detectScenarios(lastGen.msg);
-    const items = generate(lastGen.msg, lastGen.persona, scen.length ? scen[0].id : null);
-    renderResults(items, scen.length ? (SCENARIOS.find(x => x.id === scen[0].id) || {}).name : '');
+    const msg = lastGen.msg;
+    if (lastGen.xy) {
+      const xy = detectXieyin(msg);
+      const items = shuffle(xy.r).slice(0, 3).map(r => ({ t: r.t, p: r.p }));
+      renderResults(items, xy.tag);
+    } else if (lastGen.dlg) {
+      const scen2 = detectScenarios(msg);
+      const shScen = scen2.find(s => s.id.startsWith('sh_'));
+      const items = shScen ? generate(msg, lastGen.persona, shScen.id) : generate(msg, lastGen.persona, null, SH_REPLIES);
+      renderResults(items, '🗣️ 上海话');
+    } else {
+      const scen = detectScenarios(msg);
+      const items = generate(msg, lastGen.persona, scen.length ? scen[0].id : null);
+      renderResults(items, scen.length ? (SCENARIOS.find(x => x.id === scen[0].id) || {}).name : '');
+    }
     toast('已换一批 🔄');
   });
   $('#clearBtn').addEventListener('click', () => {
@@ -423,6 +494,8 @@ function bindEvents() {
         1: '今天加班到九点，累死了，感觉整个人被掏空……',
         2: '我喜欢你很久了，能做我女朋友吗？',
         3: '你总是这样，算了，随便你吧。',
+        4: '侬今朝夜到有空伐？阿拉一道出去白相好伐？',
+        5: '今天考试又挂了，真的栓Q，感觉要芭比Q了……',
       }[demo];
       run();
     });
