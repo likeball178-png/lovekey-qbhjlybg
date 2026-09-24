@@ -58,7 +58,8 @@ function detectDialect(text) {
   const t = text;
   const s3 = SH_WORDS.s3.filter(w => t.includes(w));
   const s2 = SH_WORDS.s2.filter(w => t.includes(w));
-  if (s3.length >= 1) return { type: 'sh', label: '🗣️ 上海话', hits: [...s3, ...s2].slice(0, 5) };
+  const pat = (typeof SH_PATTERNS !== 'undefined') ? SH_PATTERNS.filter(p => p[0].test(t)).map(p => p[1]) : [];
+  if (s3.length >= 1 || pat.length >= 1) return { type: 'sh', label: '🗣️ 上海话', hits: [...s3, ...pat, ...s2].slice(0, 5) };
   if (s2.length >= 2) return { type: 'sh', label: '🗣️ 上海话', hits: s2.slice(0, 5) };
   return null;
 }
