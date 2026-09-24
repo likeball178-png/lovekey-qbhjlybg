@@ -8,6 +8,10 @@ const $ = (s) => document.querySelector(s);
 const state = { persona: 'all', view: 'gen', libScene: 'all', libPersona: 'all' };
 let aiReady = true;
 
+/* ---------- 合并扩充话术库（replies2/replies3 在页面中先行加载） ---------- */
+if (typeof REPLIES2 !== 'undefined') REPLIES = REPLIES.concat(REPLIES2);
+if (typeof REPLIES3 !== 'undefined') REPLIES = REPLIES.concat(REPLIES3);
+
 /* ---------- 本地存储工具 ---------- */
 const store = {
   get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v === null || v === undefined ? d : v; } catch { return d; } },
@@ -45,8 +49,10 @@ function detectScenarios(text) {
   return scored;
 }
 
-/* ---------- 回复生成 ---------- */
+/* ---------- 回复生成（带近期去重：连续使用时不会刷到刚用过的） ---------- */
 function shuffle(a) { const x = [...a]; for (let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];} return x; }
+
+let recentKeys = store.get('lk_recent', []);
 
 function generate(msg, persona, scenarioId) {
   let pool;
@@ -66,7 +72,16 @@ function generate(msg, persona, scenarioId) {
       if (f.length) pool = f;
     }
   }
-  return shuffle(pool).slice(0, 3);
+  // 优先排除最近用过的；候选不足时放宽（保证总有 3 条）
+  let fresh = shuffle(pool).filter(r => !recentKeys.includes(r.t));
+  if (fresh.length < 3) fresh = shuffle(pool);
+  const picked = fresh.slice(0, 3);
+  picked.forEach(r => {
+    recentKeys.unshift(r.t);
+    if (recentKeys.length > 80) recentKeys.pop();
+  });
+  store.set('lk_recent', recentKeys);
+  return picked;
 }
 
 /* ---------- 复制 ---------- */

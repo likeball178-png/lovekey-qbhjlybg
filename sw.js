@@ -2,7 +2,7 @@
  * Service Worker —— 让 LOVEKEY 安装到手机桌面后永久离线可用
  * 策略：核心资源 CacheFirst（缓存优先），/api/ 请求永不缓存
  * ============================================================ */
-const CACHE = 'lovekey-v2';
+const CACHE = 'lovekey-v3';
 const CORE = [
   './',
   './index.html',

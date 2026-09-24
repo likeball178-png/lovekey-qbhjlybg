@@ -5,7 +5,6 @@
  *   SCENARIOS[id]  场景（含关键词，用于自动识别对方意图）
  *   REPLIES        {t, s(场景), p(人设)} 一条条高情商话术
  * ============================================================ */
-
 const PERSONAS = [
   { id: 'wenrou',    name: '温柔',  emoji: '🌷', desc: '温暖体贴，让人安心', tag: 'warm' },
   { id: 'youmo',     name: '幽默',  emoji: '😄', desc: '会接梗，化解尴尬',   tag: 'fun' },
@@ -16,7 +15,6 @@ const PERSONAS = [
   { id: 'chengshou', name: '成熟',  emoji: '🧭', desc: '稳重可靠，有边界',  tag: 'mature' },
   { id: 'fanzhi',    name: '反制',  emoji: '😼', desc: '对付渣男绿茶阴阳怪气', tag: 'guard' },
 ];
-
 const SCENARIOS = [
   { id: 'kaichang',  name: '开场破冰', emoji: '👋', keywords: ['你好','认识','加个','hi','hello','嗨','在吗','忙吗','有空吗','第一次','刚加的','通过一下','哈喽','在不在','你好呀'] },
   { id: 'riqing',    name: '日常关心', emoji: '☕', keywords: ['吃了吗','睡了吗','在干嘛','天冷','注意','累','加班','感冒','吃饭','休息','记得吃','别熬夜','降温','下雨','带伞','多喝热水','照顾好自己','按时'] },
@@ -46,10 +44,21 @@ const SCENARIOS = [
   { id: 'shuaqi',    name: '撒娇求哄', emoji: '🥺', keywords: ['撒娇','抱抱','亲亲','求夸','委屈','呜呜','哄','要亲亲','要抱抱','不开心','求安慰'] },
   { id: 'zaowan',    name: '早晚安',   emoji: '🌅', keywords: ['早安','早上好','午安','晚安','睡啦','起床','醒了吗','早呀','早安呀','刚醒'] },
   { id: 'shiwu',     name: '放鸽子爽约', emoji: '🕐', keywords: ['放鸽子','迟到','没来','爽约','等好久','临时有事','鸽了','来不了','抱歉来不了'] },
+  { id: 'qiushi',    name: '求助帮忙', emoji: '🙋', keywords: ['帮我','求助','帮忙','帮个忙','不会','教教我','求你了','帮帮我','搭把手'] },
+  { id: 'xiangqin',  name: '相亲介绍', emoji: '💑', keywords: ['相亲','介绍','见面了','家里催','大龄','脱单','媒人','介绍人','催婚'] },
+  { id: 'jinianri',  name: '纪念日',   emoji: '💝', keywords: ['纪念日','周年','一百天','一周年','领证纪念','在一起多久','今天什么日子'] },
+  { id: 'jianjiama', name: '见家长',   emoji: '🏠', keywords: ['见家长','见爸妈','见父母','见丈母娘','见婆婆','家长','叔叔阿姨'] },
+  { id: 'qiuhun',    name: '求婚结婚', emoji: '💍', keywords: ['求婚','结婚','领证','婚礼','嫁给我','娶你','戒指','婚纱','婚宴'] },
+  { id: 'wanle',     name: '玩乐邀约', emoji: '🎮', keywords: ['开黑','打游戏','剧本杀','密室','ktv','桌游','爬山','打球','一起玩','组队','钓鱼','露营'] },
+  { id: 'chongwu',   name: '宠物话题', emoji: '🐱', keywords: ['宠物','猫','狗','毛孩子','撸猫','遛狗','猫猫','狗狗','主子','铲屎'] },
+  { id: 'kaogong',   name: '学习考试', emoji: '📚', keywords: ['考试','复习','考研','考公','上岸','挂科','作业','论文','备考','模拟考','分数'] },
+  { id: 'gongzuo',   name: '工作吐槽', emoji: '😩', keywords: ['辞职','离职','同事','裁员','摸鱼','内卷','老板','加班','工作好累','上班','领导','kpi'] },
+  { id: 'jiameng',   name: '家常唠嗑', emoji: '🏡', keywords: ['爸妈','家里','老家','过年回家','家人','父母','亲戚','回家','妈妈','爸爸'] },
+  { id: 'gouwu',     name: '购物分享', emoji: '🛍️', keywords: ['购物','买','快递','到货','好看吗','值不值','剁手','下单','优惠','打折','种草'] },
+  { id: 'yundong',   name: '运动健身', emoji: '🏃', keywords: ['健身','跑步','运动','减肥','增肌','撸铁','瑜伽','锻炼','跑步机','练腿','俯卧撑'] },
 ];
-
-/* 高情商话术库：t=正文  s=场景id  p=人设id */
-const REPLIES = [
+/* 高情商话术库：t=正文  s=场景id  p=人设id（let：app.js 会合并 replies2/3） */
+let REPLIES = [
   /* ========== 开场破冰 kaichang ========== */
   { t: '终于等到你，可别让我等太久呀～', s: 'kaichang', p: 'wenrou' },
   { t: '你好呀，认识你是我今天最开心的事。', s: 'kaichang', p: 'wenrou' },
@@ -75,7 +84,6 @@ const REPLIES = [
   { t: '你好，初次见面，请多关照。', s: 'kaichang', p: 'chengshou' },
   { t: '很高兴认识你，可以先互相了解下吗？', s: 'kaichang', p: 'chengshou' },
   { t: '你好，不知道你找我有什么事呢？', s: 'kaichang', p: 'fanzhi' },
-
   /* ========== 日常关心 riqing ========== */
   { t: '刚吃过啦，你呢？别光顾着忙，记得按时吃饭。', s: 'riqing', p: 'wenrou' },
   { t: '我挺好的，就是有点想你。你呢，最近累不累？', s: 'riqing', p: 'wenrou' },
@@ -101,7 +109,6 @@ const REPLIES = [
   { t: '彼此都照顾好自己，就是给对方最好的交代。', s: 'riqing', p: 'chengshou' },
   { t: '突然这么关心我，是不是做了什么亏心事？', s: 'riqing', p: 'fanzhi' },
   { t: '谢了，不过这种客套话我听得多了。', s: 'riqing', p: 'fanzhi' },
-
   /* ========== 暧昧撩人 anmei ========== */
   { t: '我也想你，想得都有点睡不着了。', s: 'anmei', p: 'wenrou' },
   { t: '被你一说，我心都软了。', s: 'anmei', p: 'wenrou' },
@@ -126,7 +133,6 @@ const REPLIES = [
   { t: '这份感情我会认真对待，不辜负你的心意。', s: 'anmei', p: 'chengshou' },
   { t: '这话你对几个人说过了？我可不信。', s: 'anmei', p: 'fanzhi' },
   { t: '想我？想我的人可多了，你排个号吧。', s: 'anmei', p: 'fanzhi' },
-
   /* ========== 吵架冷场 chaojia ========== */
   { t: '我们别吵架好不好，我心疼你也心疼这段感情。', s: 'chaojia', p: 'wenrou' },
   { t: '我知道你生气，先消消气，我们好好说。', s: 'chaojia', p: 'wenrou' },
@@ -152,7 +158,6 @@ const REPLIES = [
   { t: '这就生气了？我还以为你多会玩呢。', s: 'chaojia', p: 'fanzhi' },
   { t: '行，你继续演，我配合你。', s: 'chaojia', p: 'fanzhi' },
   { t: '气大伤身，别到时候还得我伺候你。', s: 'chaojia', p: 'fanzhi' },
-
   /* ========== 道歉认错 daogian ========== */
   { t: '是我错了，真心跟你说声对不起，给我一个改过的机会。', s: 'daogian', p: 'wenrou' },
   { t: '对不起，我保证下次不会再这样了，别不理我。', s: 'daogian', p: 'wenrou' },
@@ -177,7 +182,6 @@ const REPLIES = [
   { t: '道歉不只是说说，我会证明给你看。', s: 'daogian', p: 'chengshou' },
   { t: '对不起这三个字，我今天说得很真诚，你看着办。', s: 'daogian', p: 'fanzhi' },
   { t: '行，我道歉，但我劝你别得寸进尺。', s: 'daogian', p: 'fanzhi' },
-
   /* ========== 被表白 biaobai ========== */
   { t: '其实我也喜欢你，只是没敢先说出口。', s: 'biaobai', p: 'wenrou' },
   { t: '被你抢先表白了，本来这该我来说的。', s: 'biaobai', p: 'wenrou' },
@@ -202,7 +206,6 @@ const REPLIES = [
   { t: '我们可以从互相了解开始，慢慢来。', s: 'biaobai', p: 'chengshou' },
   { t: '你这话……我录音了，以后都是证据。', s: 'biaobai', p: 'fanzhi' },
   { t: '喜欢我的人多了，你打算怎么证明你的特别？', s: 'biaobai', p: 'fanzhi' },
-
   /* ========== 委婉拒绝 jujue ========== */
   { t: '你是个很好的人，但我对你没有那种感觉，希望你能理解。', s: 'jujue', p: 'wenrou' },
   { t: '对不起，我不能接受，但我们还是可以做朋友。', s: 'jujue', p: 'wenrou' },
@@ -226,7 +229,6 @@ const REPLIES = [
   { t: '感情不能勉强，希望你能遇到双向奔赴的人。', s: 'jujue', p: 'chengshou' },
   { t: '你这话说得挺好，但我一个字都不信。', s: 'jujue', p: 'fanzhi' },
   { t: '谢谢你的喜欢，建议你换个目标。', s: 'jujue', p: 'fanzhi' },
-
   /* ========== 挽回 wanhui ========== */
   { t: '我知道我错了，能不能给我们一个重新开始的机会？', s: 'wanhui', p: 'wenrou' },
   { t: '这段时间我想了很多，我还是放不下你。', s: 'wanhui', p: 'wenrou' },
@@ -251,7 +253,6 @@ const REPLIES = [
   { t: '如果还有可能，我希望我们都能成为更好的自己。', s: 'wanhui', p: 'chengshou' },
   { t: '分手是你提的，现在回头，你把我当什么了？', s: 'wanhui', p: 'fanzhi' },
   { t: '我承认我有错，但你也没好到哪去。', s: 'wanhui', p: 'fanzhi' },
-
   /* ========== 吃醋 chicu ========== */
   { t: '我没生气，就是有点在意你跟别人聊天。', s: 'chicu', p: 'wenrou' },
   { t: '看到你跟别人聊得开心，我心里有点酸酸的。', s: 'chicu', p: 'wenrou' },
@@ -276,7 +277,6 @@ const REPLIES = [
   { t: '吃醋是爱的表现，但信任更重要，你把握好度。', s: 'chicu', p: 'chengshou' },
   { t: '哦？原来你还有别的红颜知己啊。', s: 'chicu', p: 'fanzhi' },
   { t: '没事，你聊你的，我删我的。', s: 'chicu', p: 'fanzhi' },
-
   /* ========== 冷场救场 lengchang ========== */
   { t: '其实我还有好多话想跟你说呢，别急着冷场呀。', s: 'lengchang', p: 'wenrou' },
   { t: '没话说了吗？没关系，我在呢。', s: 'lengchang', p: 'wenrou' },
@@ -299,7 +299,6 @@ const REPLIES = [
   { t: '沉默也是交流的一部分，不用紧张。', s: 'lengchang', p: 'chengshou' },
   { t: '嗯，你慢慢想，我不着急。', s: 'lengchang', p: 'fanzhi' },
   { t: '冷场了？正好，我也不想聊了。', s: 'lengchang', p: 'fanzhi' },
-
   /* ========== 结束话题 jiewei ========== */
   { t: '好，那我先不打扰你了，晚安，做个好梦。', s: 'jiewei', p: 'wenrou' },
   { t: '嗯，你先忙，有空再聊。', s: 'jiewei', p: 'wenrou' },
@@ -323,7 +322,6 @@ const REPLIES = [
   { t: '有事随时找我，不着急。', s: 'jiewei', p: 'chengshou' },
   { t: '嗯，你忙你的，我不拦着。', s: 'jiewei', p: 'fanzhi' },
   { t: '慢走不送，记得自己说过什么。', s: 'jiewei', p: 'fanzhi' },
-
   /* ========== 邀约见面 yaoqing ========== */
   { t: '好呀，那我们什么时候见？我都有空，听你的。', s: 'yaoqing', p: 'wenrou' },
   { t: '终于约我了，我还以为你不想见我呢。', s: 'yaoqing', p: 'wenrou' },
@@ -347,7 +345,6 @@ const REPLIES = [
   { t: '行，地点你定，注意安全。', s: 'yaoqing', p: 'chengshou' },
   { t: '见面可以，先说好AA，我不占你便宜。', s: 'yaoqing', p: 'fanzhi' },
   { t: '哟，太阳打西边出来了，你也会约人？', s: 'yaoqing', p: 'fanzhi' },
-
   /* ========== 接梗逗趣 jiereng ========== */
   { t: '哈哈哈你太有梗了，跟你聊天我的快乐源泉。', s: 'jiereng', p: 'wenrou' },
   { t: '你这一句，我今天能笑一整天。', s: 'jiereng', p: 'youmo' },
@@ -368,7 +365,6 @@ const REPLIES = [
   { t: '幽默感是加分项，你保持。', s: 'jiereng', p: 'chengshou' },
   { t: '笑点不错，可惜我笑点高。', s: 'jiereng', p: 'fanzhi' },
   { t: '这梗有点旧了，换新的来。', s: 'jiereng', p: 'fanzhi' },
-
   /* ========== 职场长辈 daren ========== */
   { t: '好的领导，我马上处理，有进展第一时间向您汇报。', s: 'daren', p: 'chengshou' },
   { t: '您辛苦了，这个方案我会再优化一版给您过目。', s: 'daren', p: 'chengshou' },
@@ -384,10 +380,8 @@ const REPLIES = [
   { t: '嗯嗯好的，我马上安排～', s: 'daren', p: 'ruanmeng' },
   { t: '收到收到，保证完成任务！', s: 'daren', p: 'ruanmeng' },
   { t: '我会按优先级推进，重要节点同步您。', s: 'daren', p: 'chengshou' },
-  { t: '嗯，知道了。', s: 'daren', p: 'gaoleng' },
   { t: '这话说得，我差点以为你要给我加薪。', s: 'daren', p: 'fanzhi' },
   { t: '辛苦了？那奖金是不是也该到位了？', s: 'daren', p: 'fanzhi' },
-
   /* ========== 自我展示 zixin ========== */
   { t: '挺好的，就是最近有点想你。你呢，过得怎么样？', s: 'zixin', p: 'wenrou' },
   { t: '我嘛，吃好喝好，就差一个你陪着了。', s: 'zixin', p: 'youmo' },
@@ -399,7 +393,6 @@ const REPLIES = [
   { t: '挺好的，谢谢关心。你呢？', s: 'zixin', p: 'chengshou' },
   { t: '老样子，活着，且活得不错。', s: 'zixin', p: 'fanzhi' },
   { t: '我过得如何，取决于你有没有想我。', s: 'zixin', p: 'youmo' },
-
   /* ========== 生日祝福 shengri ========== */
   { t: '生日快乐！愿你新的一岁，天天都开心，我一直都在。', s: 'shengri', p: 'wenrou' },
   { t: '祝你生日快乐，许的愿望都能实现～', s: 'shengri', p: 'wenrou' },
@@ -419,7 +412,6 @@ const REPLIES = [
   { t: '生日快乐，愿你新的一岁心想事成。', s: 'shengri', p: 'chengshou' },
   { t: '祝你生日快乐，这一年也要好好照顾自己。', s: 'shengri', p: 'chengshou' },
   { t: '生日快乐，记得许愿的时候分我一份好运。', s: 'shengri', p: 'fanzhi' },
-
   /* ========== 节日祝福 jieri ========== */
   { t: '新年快乐！愿你这一年平安喜乐，我们越来越好。', s: 'jieri', p: 'wenrou' },
   { t: '节日快乐，希望今天你笑得比烟花还灿烂。', s: 'jieri', p: 'wenrou' },
@@ -437,7 +429,6 @@ const REPLIES = [
   { t: '节日快乐，陪家人好好吃顿饭。', s: 'jieri', p: 'chengshou' },
   { t: '节日快乐，群发的祝福我就当没看见，你这句我收下了。', s: 'jieri', p: 'fanzhi' },
   { t: '哟，过节想起我了？说吧，想要什么。', s: 'jieri', p: 'fanzhi' },
-
   /* ========== 失眠陪伴 shimian ========== */
   { t: '睡不着吗？那我陪你聊到你困为止。', s: 'shimian', p: 'wenrou' },
   { t: '别数羊了，数数我的好，保证你甜到睡着。', s: 'shimian', p: 'wenrou' },
@@ -454,7 +445,6 @@ const REPLIES = [
   { t: '失眠多半是心里有事，说出来会好一些。', s: 'shimian', p: 'chengshou' },
   { t: '试试深呼吸，放空大脑，我在呢。', s: 'shimian', p: 'chengshou' },
   { t: '大半夜不睡，你是想修仙还是想我？', s: 'shimian', p: 'fanzhi' },
-
   /* ========== 生病安慰 shengbing ========== */
   { t: '难受就别硬撑了，多喝热水，好好休息，我在呢。', s: 'shengbing', p: 'wenrou' },
   { t: '心疼死我了，快躺下休息，别玩手机了。', s: 'shengbing', p: 'wenrou' },
@@ -471,7 +461,6 @@ const REPLIES = [
   { t: '身体是革命的本钱，先休息，其他事放一放。', s: 'shengbing', p: 'chengshou' },
   { t: '去看医生了吗？别自己硬扛。', s: 'shengbing', p: 'chengshou' },
   { t: '生病了才想起我？行吧，那我勉强心疼你一下。', s: 'shengbing', p: 'fanzhi' },
-
   /* ========== 压力疏导 yali ========== */
   { t: '别一个人扛，我在呢，说出来我陪你分担。', s: 'yali', p: 'wenrou' },
   { t: '你已经做得很好了，累了就歇歇，天塌不下来。', s: 'yali', p: 'wenrou' },
@@ -489,7 +478,6 @@ const REPLIES = [
   { t: '先照顾好自己，其他都是小事。', s: 'yali', p: 'chengshou' },
   { t: '成年人的世界都这样，哭完记得继续走。', s: 'yali', p: 'fanzhi' },
   { t: '你崩溃的样子我见过不少了，这次要不要换个剧本？', s: 'yali', p: 'fanzhi' },
-
   /* ========== 异地思念 yuanju ========== */
   { t: '隔着屏幕抱抱你，等见面了补个大的。', s: 'yuanju', p: 'wenrou' },
   { t: '距离算什么，我攒了一整个夏天的想念要给你。', s: 'yuanju', p: 'wenrou' },
@@ -506,7 +494,6 @@ const REPLIES = [
   { t: '异地恋更需要信任和规划，我们一步步来。', s: 'yuanju', p: 'chengshou' },
   { t: '距离会让我们更珍惜见面的时候。', s: 'yuanju', p: 'chengshou' },
   { t: '异地？正好，我自由得很。', s: 'yuanju', p: 'fanzhi' },
-
   /* ========== 失恋安慰 shilian ========== */
   { t: '想哭就哭吧，我在你身边，哭完我陪你去吃好吃的。', s: 'shilian', p: 'wenrou' },
   { t: '他不懂珍惜你，是他的损失，不是你不好。', s: 'shilian', p: 'wenrou' },
@@ -523,7 +510,6 @@ const REPLIES = [
   { t: '感情没有对错，放下也是成长的一部分。', s: 'shilian', p: 'chengshou' },
   { t: '把时间留给自己，你会遇到更好的人。', s: 'shilian', p: 'chengshou' },
   { t: '我就说那人不靠谱，你看，我眼光多准。', s: 'shilian', p: 'fanzhi' },
-
   /* ========== 查岗报备 chagang ========== */
   { t: '在家呢，你要不要视频查岗？', s: 'chagang', p: 'wenrou' },
   { t: '在公司加班呢，你放心，我身边只有电脑。', s: 'chagang', p: 'wenrou' },
@@ -541,7 +527,6 @@ const REPLIES = [
   { t: '报备一下：在公司加班，预计九点到家。', s: 'chagang', p: 'chengshou' },
   { t: '查岗？我建议你先查查你自己的聊天记录。', s: 'chagang', p: 'fanzhi' },
   { t: '这么关心我的行踪？我是不是该收费了。', s: 'chagang', p: 'fanzhi' },
-
   /* ========== 夸夸照片 zhaopian ========== */
   { t: '这张照片拍得真好，但本人更好看。', s: 'zhaopian', p: 'wenrou' },
   { t: '皮肤也太好了吧，素颜都这么能打。', s: 'zhaopian', p: 'wenrou' },
@@ -559,7 +544,6 @@ const REPLIES = [
   { t: '穿搭有品位，继续保持。', s: 'zhaopian', p: 'chengshou' },
   { t: '这角度找得不错，修图技术也进步了。', s: 'zhaopian', p: 'fanzhi' },
   { t: '好看是好看，就是不知道真人长啥样。', s: 'zhaopian', p: 'fanzhi' },
-
   /* ========== 恭喜夸赞 gongxi ========== */
   { t: '太棒了！我就知道你可以，替你高兴。', s: 'gongxi', p: 'wenrou' },
   { t: '恭喜恭喜，努力的人运气不会差。', s: 'gongxi', p: 'wenrou' },
@@ -577,7 +561,6 @@ const REPLIES = [
   { t: '替你开心，继续保持这个势头。', s: 'gongxi', p: 'chengshou' },
   { t: '恭喜恭喜，希望下次听到的是请柬。', s: 'gongxi', p: 'fanzhi' },
   { t: '哟，出息了啊，行，请你一顿。', s: 'gongxi', p: 'fanzhi' },
-
   /* ========== 撒娇求哄 shuaqi ========== */
   { t: '抱抱，不委屈了，我在呢。', s: 'shuaqi', p: 'wenrou' },
   { t: '摸摸头，谁欺负你了跟我说。', s: 'shuaqi', p: 'wenrou' },
@@ -595,7 +578,6 @@ const REPLIES = [
   { t: '我可以哄你，但你也得学会自己消化情绪。', s: 'shuaqi', p: 'chengshou' },
   { t: '撒娇？你确定你这招对我有用？', s: 'shuaqi', p: 'fanzhi' },
   { t: '行行行，抱你，满意了吧。', s: 'shuaqi', p: 'fanzhi' },
-
   /* ========== 早晚安 zaowan ========== */
   { t: '早安，今天也要元气满满哦。', s: 'zaowan', p: 'wenrou' },
   { t: '早上好呀，昨晚睡得好吗？', s: 'zaowan', p: 'wenrou' },
@@ -612,13 +594,11 @@ const REPLIES = [
   { t: '早安，规律作息对身体好，继续保持。', s: 'zaowan', p: 'chengshou' },
   { t: '早上好，今天有什么安排吗？', s: 'zaowan', p: 'chengshou' },
   { t: '早，你居然起这么早，太阳打西边出来了？', s: 'zaowan', p: 'fanzhi' },
-
   /* ========== 放鸽子爽约 shiwu ========== */
   { t: '没关系，你忙你的，我们改天再约。', s: 'shiwu', p: 'wenrou' },
   { t: '理解，工作重要，注意身体别太累。', s: 'shiwu', p: 'wenrou' },
   { t: '行吧，那我只能自己一个人吃火锅了（委屈）。', s: 'shiwu', p: 'youmo' },
   { t: '放我鸽子？这笔账我记小本本上了。', s: 'shiwu', p: 'youmo' },
-  { t: '嗯。', s: 'shiwu', p: 'gaoleng' },
   { t: '下次早点说。', s: 'shiwu', p: 'gaoleng' },
   { t: '这次算了，下不为例，我可记着呢。', s: 'shiwu', p: 'baidao' },
   { t: '行，那你欠我一次，记得补上。', s: 'shiwu', p: 'baidao' },
@@ -631,7 +611,6 @@ const REPLIES = [
   { t: '习惯就好，毕竟你鸽我不是第一次了。', s: 'shiwu', p: 'fanzhi' },
   { t: '放鸽子这种事，一回生二回熟是吧？', s: 'shiwu', p: 'fanzhi' },
 ];
-
 /* 万能兜底：当场景+人设组合无匹配时，从同人设全局话术中选 */
 const FALLBACK = [
   { t: '你的消息我看到了，先让我想想怎么回你。', s: '*', p: 'wenrou' },
