@@ -56,7 +56,8 @@ function detectScenarios(text) {
 const SH_EXCLUDE = {
   '阿拉': /阿拉(丁|斯加|善|巴马|山口|木图|比|伯|蕾)/,
   '伊拉': /伊拉(克|朗|瓦底)/,
-  '开兴': /开兴(?!得|额|伐|勒|莱)/,
+  '开兴': /开兴(?!得|额|伐|勒|莱|了)/,
+  '做撒': /做撒(子|嘛|的|就做撒)/,
   '好额': /好额(这|那)/,
   '来勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
   '走勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
@@ -98,7 +99,7 @@ let recentKeys = store.get('lk_recent', []);
 function generate(msg, persona, scenarioId, poolOverride) {
   let pool;
   if (poolOverride) {
-    pool = poolOverride;
+    pool = scenarioId ? poolOverride.filter(r => r.s === scenarioId) : poolOverride;
   } else if (scenarioId) {
     pool = REPLIES.filter(r => r.s === scenarioId);
   } else {
@@ -208,6 +209,7 @@ async function run() {
   const dlg = detectDialect(msg);
   const xy = detectXieyin(msg);
   const detectEl = $('#detectCard'), detectRes = $('#detectResult');
+  detectRes.innerHTML = ''; // 清空上次残留标签
 
   // 识别标签：谐音梗 > 方言 > 场景，可叠加
   const tags = [];
@@ -225,7 +227,9 @@ async function run() {
   } else {
     detectEl.hidden = true;
   }
-  const scenarioId = scen.length ? scen[0].id : null;
+  // 非沪语路径：排除 sh_* 场景（沪语场景必须由方言检测触发，否则掉空池变万能废话）
+  const nonSh = scen.filter(s => !s.id.startsWith('sh_'));
+  const scenarioId = nonSh.length ? nonSh[0].id : null;
   const scenarioLabel = tags.map(t => t.replace(/<[^>]+>/g, '')).join(' · ');
 
   let items = [];
@@ -235,7 +239,7 @@ async function run() {
   } else if (dlg) {
     // 上海话：优先上海话专属回复池；若场景命中 sh_*，则出对应上海话场景的回复
     const shScen = scen.find(s => s.id.startsWith('sh_'));
-    items = shScen ? generate(msg, state.persona, shScen.id) : generate(msg, state.persona, null, SH_REPLIES);
+    items = shScen ? generate(msg, state.persona, shScen.id, SH_REPLIES) : generate(msg, state.persona, null, SH_REPLIES);
   } else if (aiReady) {
     const aiBtn = $('#toggleAiBtn');
     const old = aiBtn.textContent;
@@ -485,12 +489,13 @@ function bindEvents() {
     } else if (lastGen.dlg) {
       const scen2 = detectScenarios(msg);
       const shScen = scen2.find(s => s.id.startsWith('sh_'));
-      const items = shScen ? generate(msg, lastGen.persona, shScen.id) : generate(msg, lastGen.persona, null, SH_REPLIES);
+      const items = shScen ? generate(msg, lastGen.persona, shScen.id, SH_REPLIES) : generate(msg, lastGen.persona, null, SH_REPLIES);
       renderResults(items, '🗣️ 上海话');
     } else {
       const scen = detectScenarios(msg);
-      const items = generate(msg, lastGen.persona, scen.length ? scen[0].id : null);
-      renderResults(items, scen.length ? (SCENARIOS.find(x => x.id === scen[0].id) || {}).name : '');
+      const nonSh = scen.filter(s => !s.id.startsWith('sh_'));
+      const items = generate(msg, lastGen.persona, nonSh.length ? nonSh[0].id : null);
+      renderResults(items, nonSh.length ? (SCENARIOS.find(x => x.id === nonSh[0].id) || {}).name : '');
     }
     toast('已换一批 🔄');
   });
