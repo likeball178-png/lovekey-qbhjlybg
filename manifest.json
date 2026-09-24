@@ -1,0 +1,13 @@
+{
+  "name": "高情商回复 · 恋爱键盘",
+  "short_name": "高情商回复",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1027",
+  "theme_color": "#ff5e8a",
+  "description": "复制对话，一键生成高情商回复。恋爱开场白、聊天人设、不冷场回话，全部本地生成。",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

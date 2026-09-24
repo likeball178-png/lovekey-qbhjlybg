@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#ff5e8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>高情商回复 · 恋爱键盘</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <div class="logo">💬 <span>高情商回复</span></div>
+    <div class="tagline">复制对话 · 一键回话 · 高情商不冷场</div>
+  </header>
+
+  <!-- ============ 视图一：生成 ============ -->
+  <section id="genView" class="view">
+    <div class="card input-card">
+      <label class="card-label" for="msg">把对方的话粘进来（也可粘整段聊天记录）</label>
+      <div class="input-row">
+        <textarea id="msg" rows="3" placeholder="例：今天累死了，什么都不想干……&#10;&#10;粘贴聊天记录后，我会自动识别场景与人设，帮你回话"></textarea>
+        <button class="voice-btn" id="voiceBtn" title="语音输入（需联网）" hidden>🎤</button>
+      </div>
+      <div class="quick-row">
+        <button class="chip" data-demo="1">示例：加班累</button>
+        <button class="chip" data-demo="2">示例：被表白</button>
+        <button class="chip" data-demo="3">示例：吵架冷战</button>
+        <button class="chip" id="clearBtn">清空</button>
+      </div>
+    </div>
+
+    <div class="card detect-card" id="detectCard" hidden>
+      <div class="card-label">🤖 我识别到对方想表达的是</div>
+      <div id="detectResult" class="detect-result"></div>
+    </div>
+
+    <div class="card persona-card">
+      <div class="card-label">选择你的回复人设</div>
+      <div class="persona-grid" id="personaGrid"></div>
+    </div>
+
+    <button class="gen-btn" id="genBtn">✨ 生成高情商回复</button>
+    <div class="ai-status" id="aiStatus" hidden></div>
+
+    <div class="card result-card" id="resultCard" hidden>
+      <div class="result-head">
+        <span>推荐回复</span>
+        <span class="result-count" id="resultCount"></span>
+      </div>
+      <div id="resultList" class="result-list"></div>
+      <button class="again-btn" id="againBtn">🔄 换一批</button>
+    </div>
+
+    <div class="card opener-card">
+      <div class="card-label">💘 恋爱开场白 & 破冰</div>
+      <div id="openerList" class="opener-list"></div>
+    </div>
+
+    <footer class="foot">
+      <div class="note">💡 全部在本地生成 · 无需联网 · 隐私安全</div>
+      <div class="note2">💡 正在检测运行环境…（可离线使用内置话术库）</div>
+      <button class="link" id="toggleAiBtn">⚙️ 本地AI引擎（检测中…）</button>
+    </footer>
+  </section>
+
+  <!-- ============ 视图二：话术库 ============ -->
+  <section id="libView" class="view" hidden>
+    <div class="card">
+      <div class="card-label">📚 高情商话术库 · <span id="libCount"></span> 条</div>
+      <input class="lib-search" id="libSearch" type="search" placeholder="🔍 搜索话术，如：加班 / 晚安 / 道歉…">
+      <div class="chip-row" id="libSceneChips"></div>
+      <div class="chip-row" id="libPersonaChips"></div>
+      <div id="libList" class="lib-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ 视图三：收藏 ============ -->
+  <section id="favView" class="view" hidden>
+    <div class="card">
+      <div class="card-label">⭐ 我的收藏</div>
+      <div id="favList" class="lib-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ 视图四：历史 ============ -->
+  <section id="histView" class="view" hidden>
+    <div class="card">
+      <div class="card-label">🕐 最近生成</div>
+      <div id="histList" class="lib-list"></div>
+    </div>
+  </section>
+
+  <!-- 底部导航 -->
+  <nav class="tabbar">
+    <button class="tab-item active" data-v="gen">💬 生成</button>
+    <button class="tab-item" data-v="lib">📚 话术库</button>
+    <button class="tab-item" data-v="fav">⭐ 收藏</button>
+    <button class="tab-item" data-v="hist">🕐 历史</button>
+  </nav>
+</div>
+
+<script src="data/replies.js"></script>
+<script src="app.js"></script>
+<script>
+// PWA 离线缓存注册（file:// 打开时浏览器自动忽略，不影响使用）
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+  navigator.serviceWorker.register('./sw.js').catch(e => console.warn('SW注册失败（不影响离线使用）', e));
+}
+</script>
+</body>
+</html>
