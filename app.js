@@ -53,10 +53,26 @@ function detectScenarios(text) {
 }
 
 /* ---------- 方言识别（上海话） ---------- */
+const SH_EXCLUDE = {
+  '阿拉': /阿拉(丁|斯加|善|巴马|山口|木图|比|伯|蕾)/,
+  '伊拉': /伊拉(克|朗|瓦底)/,
+  '开兴': /开兴(?!得|额|伐|勒|莱)/,
+  '好额': /好额(这|那)/,
+  '来勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
+  '走勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
+  '去勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
+  '困勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
+  '切勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
+  '白相勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
+  '看勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
+  '听勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
+  '讲勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
+  '想勒': /(来勒|走勒|去勒|困勒|切勒|白相勒|看勒|听勒|讲勒|想勒)\1/,
+};
 function detectDialect(text) {
   if (!text || typeof SH_WORDS === 'undefined') return null;
   const t = text;
-  const s3 = SH_WORDS.s3.filter(w => t.includes(w));
+  const s3 = SH_WORDS.s3.filter(w => t.includes(w) && !(SH_EXCLUDE[w] && SH_EXCLUDE[w].test(t)));
   const s2 = SH_WORDS.s2.filter(w => t.includes(w));
   const pat = (typeof SH_PATTERNS !== 'undefined') ? SH_PATTERNS.filter(p => p[0].test(t)).map(p => p[1]) : [];
   if (s3.length >= 1 || pat.length >= 1) return { type: 'sh', label: '🗣️ 上海话', hits: [...s3, ...pat, ...s2].slice(0, 5) };
