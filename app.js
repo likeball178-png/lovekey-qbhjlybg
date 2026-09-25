@@ -47,8 +47,8 @@ function detectScenarios(text) {
   const t = text.toLowerCase();
   const scored = SCENARIOS.map(s => {
     const hits = s.keywords.filter(k => t.includes(k.toLowerCase()));
-    return { id: s.id, score: hits.length, hits };
-  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+    return { id: s.id, score: hits.length, hitLen: hits.join('').length, hits };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score || b.hitLen - a.hitLen);
   return scored;
 }
 
