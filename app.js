@@ -125,6 +125,22 @@ function generate(msg, persona, scenarioId, poolOverride) {
     const rest = shuffle(pool).filter(r => !fresh.includes(r));
     picked = [...fresh, ...rest].slice(0, 3);
   }
+  // 子话题提升：同一场景内（如"状态分享"含冷/热/饿），抽完后把不匹配的换成匹配的
+  if (scenarioId && msg) {
+    const sc = SCENARIOS.find(x => x.id === scenarioId);
+    const kw = (sc && sc.keywords || []).filter(k => k.length >= 2 && msg.includes(k));
+    if (kw.length) {
+      const core = k => k.replace(/^好/, '').replace(/(死了|死|了|呀|啦|哒)$/, '');
+      const isGood = r => kw.some(k => { const c = core(k); return c && r.t.includes(c); });
+      const good = picked.filter(isGood);
+      if (good.length < 2) {
+        const better = shuffle(pool.filter(r => !picked.includes(r) && isGood(r)));
+        for (let i = 0; i < picked.length && better.length; i++) {
+          if (!isGood(picked[i])) picked[i] = better.shift();
+        }
+      }
+    }
+  }
   picked.forEach(r => {
     recentKeys.unshift(r.t);
     if (recentKeys.length > 80) recentKeys.pop();
